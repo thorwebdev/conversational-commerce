@@ -179,106 +179,113 @@ export function ConversationalCommerce() {
     error?.includes("AGENT_ID") || error?.includes("ELEVENLABS_API_KEY");
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-      <Card className="rounded-3xl">
-        <CardContent>
-          <CardHeader>
-            <CardTitle className="text-center text-2xl font-bold">
-              {isDemoMode
-                ? "AI Shopping Assistant - Demo Mode"
-                : conversation.status === "connected"
-                ? conversation.isSpeaking
-                  ? "Assistant is speaking"
-                  : "Assistant is listening"
-                : "AI Shopping Assistant"}
-            </CardTitle>
-          </CardHeader>
-          <div className="flex flex-col gap-y-4 text-center items-center">
-            <div className="flex justify-center w-full">
-              <div
-                className={cn(
-                  "orb",
-                  isDemoMode
-                    ? "orb-inactive"
-                    : conversation.status === "connected" &&
-                      conversation.isSpeaking
-                    ? "orb-active animate-orb"
-                    : conversation.status === "connected"
-                    ? "animate-orb-slow orb-inactive"
-                    : "orb-inactive"
-                )}
-              ></div>
-            </div>
-
-            {error && (
-              <div
-                className={cn(
-                  "text-sm p-3 rounded-md border max-w-md mx-auto text-left",
-                  isDemoMode
-                    ? "text-orange-600 bg-orange-50 border-orange-200"
-                    : "text-red-500 bg-red-50 border-red-200"
-                )}
-              >
-                <div className="font-medium mb-2">
-                  {isDemoMode ? "Demo Mode:" : "Configuration Error:"}
-                </div>
-                <div className="mb-3">{error}</div>
-
-                {(isConfigError || isDemoMode) && (
-                  <div className="text-xs text-gray-600 space-y-2">
-                    <div>To enable full functionality:</div>
-                    <div className="space-y-1">
-                      <div>1. Get your API key from ElevenLabs</div>
-                      <div>
-                        2. Create a conversational AI agent and copy the Agent
-                        ID
-                      </div>
-                      <div>3. Set environment variables in your deployment</div>
-                    </div>
-                  </div>
-                )}
+    <div className="flex gap-6 w-full h-screen pt-16 p-6">
+      {/* AI Shopping Assistant - Left Side */}
+      <div className="flex flex-col w-96 flex-shrink-0">
+        <Card className="rounded-3xl h-full">
+          <CardContent className="h-full flex flex-col">
+            <CardHeader>
+              <CardTitle className="text-center text-2xl font-bold">
+                {isDemoMode
+                  ? "AI Shopping Assistant - Demo Mode"
+                  : conversation.status === "connected"
+                  ? conversation.isSpeaking
+                    ? "Assistant is speaking"
+                    : "Assistant is listening"
+                  : "AI Shopping Assistant"}
+              </CardTitle>
+            </CardHeader>
+            <div className="flex flex-col gap-y-4 text-center items-center flex-grow justify-center">
+              <div className="flex justify-center w-full">
+                <div
+                  className={cn(
+                    "orb",
+                    isDemoMode
+                      ? "orb-inactive"
+                      : conversation.status === "connected" &&
+                        conversation.isSpeaking
+                      ? "orb-active animate-orb"
+                      : conversation.status === "connected"
+                      ? "animate-orb-slow orb-inactive"
+                      : "orb-inactive"
+                  )}
+                ></div>
               </div>
-            )}
 
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="rounded-full bg-transparent"
-                size="lg"
-                disabled={
-                  isLoading ||
-                  (conversation !== null && conversation.status === "connected")
-                }
-                onClick={startConversation}
-              >
-                {isLoading
-                  ? "Starting..."
-                  : isDemoMode
-                  ? "Try Demo"
-                  : "Start Shopping"}
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full bg-transparent"
-                size="lg"
-                disabled={isLoading || (conversation === null && !isDemoMode)}
-                onClick={stopConversation}
-              >
-                {isLoading ? "Stopping..." : "End Session"}
-              </Button>
+              {error && (
+                <div
+                  className={cn(
+                    "text-sm p-3 rounded-md border max-w-md mx-auto text-left",
+                    isDemoMode
+                      ? "text-orange-600 bg-orange-50 border-orange-200"
+                      : "text-red-500 bg-red-50 border-red-200"
+                  )}
+                >
+                  <div className="font-medium mb-2">
+                    {isDemoMode ? "Demo Mode:" : "Configuration Error:"}
+                  </div>
+                  <div className="mb-3">{error}</div>
+
+                  {(isConfigError || isDemoMode) && (
+                    <div className="text-xs text-gray-600 space-y-2">
+                      <div>To enable full functionality:</div>
+                      <div className="space-y-1">
+                        <div>1. Get your API key from ElevenLabs</div>
+                        <div>
+                          2. Create a conversational AI agent and copy the Agent
+                          ID
+                        </div>
+                        <div>
+                          3. Set environment variables in your deployment
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-4 w-full px-4">
+                <Button
+                  variant="outline"
+                  className="rounded-full bg-transparent w-full"
+                  size="lg"
+                  disabled={
+                    isLoading ||
+                    (conversation !== null &&
+                      conversation.status === "connected")
+                  }
+                  onClick={startConversation}
+                >
+                  {isLoading
+                    ? "Starting..."
+                    : isDemoMode
+                    ? "Try Demo"
+                    : "Start Shopping"}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-full bg-transparent w-full"
+                  size="lg"
+                  disabled={isLoading || (conversation === null && !isDemoMode)}
+                  onClick={stopConversation}
+                >
+                  {isLoading ? "Stopping..." : "End Session"}
+                </Button>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+      {/* Interactive Product View - Right Side */}
+      <div className="flex-1">
+        <Card className="h-full">
           <CardHeader>
             <CardTitle>Interactive Product View</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="h-full overflow-hidden">
             {mcpToolResult && (
-              <div className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth">
+              <div className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth h-full">
                 {mcpToolResult.map((uiResource: any, index: number) => {
                   const height = 360;
                   const width = 230;

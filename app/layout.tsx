@@ -1,24 +1,32 @@
-import type React from "react"
-import type { Metadata } from "next"
-import "./globals.css"
-import { BackgroundWave } from "@/components/background-wave"
-import Link from "next/link"
-import { ElevenLabsLogo, GithubLogo } from "@/components/logos"
+import type React from "react";
+import type { Metadata } from "next";
+import "./globals.css";
+import { BackgroundWave } from "@/components/background-wave";
+import Link from "next/link";
+import { ElevenLabsLogo, GithubLogo } from "@/components/logos";
 
 export const metadata: Metadata = {
   title: "Conversational Commerce Demo",
-    generator: 'v0.app'
-}
+  generator: "v0.app",
+};
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={"h-full w-full"}>
       <body className={`antialiased w-full h-full lex flex-col`}>
-        <div className="flex flex-col flex-grow w-full items-center justify-center sm:px-4">
-          <nav className={"sm:fixed w-full top-0 left-0 grid grid-cols-2 py-4 px-8"}>
+        <div className="flex flex-col flex-grow w-full">
+          <nav
+            className={
+              "sm:fixed w-full top-0 left-0 grid grid-cols-2 py-4 px-8"
+            }
+          >
             <div className={"flex"}>
               <Link href={"/"} prefetch={true}>
-                <ElevenLabsLogo className={"h-[15px] w-auto hover:text-gray-500"} />
+                <ElevenLabsLogo
+                  className={"h-[15px] w-auto hover:text-gray-500"}
+                />
               </Link>
             </div>
 
@@ -30,7 +38,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 className={"py-0.5"}
                 aria-label="View source on GitHub"
               >
-                <GithubLogo className={"w-5 h-5 hover:text-gray-500 text-[#24292f]"} />
+                <GithubLogo
+                  className={"w-5 h-5 hover:text-gray-500 text-[#24292f]"}
+                />
               </Link>
             </div>
           </nav>
@@ -39,5 +49,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </div>
       </body>
     </html>
-  )
+  );
 }
