@@ -78,6 +78,14 @@ export function ConversationalCommerce() {
 
   const conversation = useConversation({
     mode: "webrtc",
+    clientTools: {
+      redirect_to_checkout: async ({ url }: { url: string }) => {
+        console.log("Redirecting to checkout:", url);
+        // Open in new tab/window for better UX
+        window.open(url, "_blank", "noopener,noreferrer");
+        return "Redirected to checkout successfully";
+      },
+    },
     onConnect: () => {
       console.log("Connected to conversation");
       setError(null);
@@ -309,6 +317,11 @@ export function ConversationalCommerce() {
                           }}
                           onUIAction={async (result) => {
                             console.log("Action:", result);
+                            if (result.type === "prompt") {
+                              conversation.sendUserMessage(
+                                result.payload.prompt
+                              );
+                            }
                           }}
                           htmlProps={{
                             autoResizeIframe: { width: true, height: true },
