@@ -138,3 +138,27 @@ body {
     transform: translate(0, 0) rotate(360deg);
   }
 }
+
+/* Hide scrollbar styles */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Force MCP detail view to full width */
+[data-radix-dialog-content] iframe {
+  width: 100% !important;
+  min-width: 100% !important;
+}
+
+/* Override MCP card container width in modal */
+[data-radix-dialog-content] .MuiContainer-root,
+[data-radix-dialog-content] .mcp-container,
+[data-radix-dialog-content] [class*="Container"] {
+  max-width: 100% !important;
+  width: 100% !important;
+}

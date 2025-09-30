@@ -1,12 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useCallback, useState, useEffect } from "react";
+import { ConversationButton } from "@/components/ConversationButton";
+import { Orb } from "@/components/Orb";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useConversation } from "@elevenlabs/react";
 import { cn } from "@/lib/utils";
 import { UIResourceRenderer } from "@mcp-ui/client";
-import { ShoppingCart, Package, Terminal } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ElevenLabsLogo, GithubLogo } from "@/components/logos";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 async function requestMicrophonePermission() {
   try {
@@ -65,12 +71,19 @@ async function getSignedUrl(): Promise<{
   }
 }
 
+type ViewState = 'initial' | 'listening' | 'results';
+
+
 export function ConversationalCommerce() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [envStatus, setEnvStatus] = useState<any>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [mcpToolResult, setMcpToolResult] = useState<any>(null);
+  const [viewState, setViewState] = useState<ViewState>('initial');
+  const productRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [volumeLevel, setVolumeLevel] = useState(0);
 
   useEffect(() => {
     checkEnvironment().then(setEnvStatus);
@@ -85,14 +98,29 @@ export function ConversationalCommerce() {
         window.open(url, "_blank", "noopener,noreferrer");
         return "Redirected to checkout successfully";
       },
+      open_cart: async () => {
+        console.log("Opening cart");
+        // This would typically open a cart modal or navigate to cart page
+        // For now, we'll just log it and let the AI handle the conversation
+        return "Cart opened successfully";
+      },
+      add_to_cart: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
+        console.log(`Adding to cart: ${productId} x${quantity}`);
+        // This would typically add the item to the cart
+        // For now, we'll just log it and let the AI handle the conversation
+        return `Added ${quantity} item(s) to cart`;
+      },
     },
     onConnect: () => {
       console.log("Connected to conversation");
       setError(null);
+      setViewState('listening');
     },
     onDisconnect: () => {
       console.log("Disconnected from conversation");
       setIsLoading(false);
+      setViewState('initial');
+      setMcpToolResult(null);
     },
     onError: (error) => {
       console.error("Conversation error:", error);
@@ -122,6 +150,9 @@ export function ConversationalCommerce() {
         );
         console.log("UI Resources:", uiResources);
         setMcpToolResult(uiResources);
+        if (uiResources && uiResources.length > 0) {
+          setViewState('results');
+        }
       }
     },
     onMessage: (message) => {
@@ -132,6 +163,40 @@ export function ConversationalCommerce() {
       );
     },
   });
+
+  // Check for pending prompts when returning from detail page
+  useEffect(() => {
+    const pendingPrompt = sessionStorage.getItem("pendingPrompt");
+    if (pendingPrompt && conversation.status === "connected") {
+      conversation.sendUserMessage(pendingPrompt);
+      sessionStorage.removeItem("pendingPrompt");
+    }
+  }, [conversation.status]);
+
+  // Update volume level from audio frequency data
+  useEffect(() => {
+    if (conversation.status !== "connected") return;
+
+    const updateVolume = () => {
+      try {
+        const frequencyData = conversation.getOutputByteFrequencyData();
+        if (frequencyData && frequencyData.length > 0) {
+          // Calculate average volume from frequency data
+          const sum = frequencyData.reduce((a, b) => a + b, 0);
+          const average = sum / frequencyData.length;
+          // Normalize to 0-1 range (frequencyData values are 0-255)
+          const normalized = average / 255;
+          setVolumeLevel(normalized);
+        }
+      } catch (error) {
+        // Silently handle if method not available
+      }
+    };
+
+    const intervalId = setInterval(updateVolume, 50); // Update every 50ms
+
+    return () => clearInterval(intervalId);
+  }, [conversation.status]);
 
   async function startConversation() {
     try {
@@ -173,6 +238,8 @@ export function ConversationalCommerce() {
       await conversation.endSession();
       setError(null);
       setIsDemoMode(false);
+      setViewState('initial');
+      setMcpToolResult(null);
     } catch (error) {
       console.error("Error stopping conversation:", error);
       setError(
@@ -187,155 +254,305 @@ export function ConversationalCommerce() {
     error?.includes("AGENT_ID") || error?.includes("ELEVENLABS_API_KEY");
 
   return (
-    <div className="flex gap-6 w-full h-screen pt-16 p-6">
-      {/* AI Shopping Assistant - Left Side */}
-      <div className="flex flex-col w-96 flex-shrink-0">
-        <Card className="rounded-3xl h-full">
-          <CardContent className="h-full flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl font-bold">
-                {isDemoMode
-                  ? "AI Shopping Assistant - Demo Mode"
-                  : conversation.status === "connected"
-                  ? conversation.isSpeaking
-                    ? "Assistant is speaking"
-                    : "Assistant is listening"
-                  : "AI Shopping Assistant"}
-              </CardTitle>
-            </CardHeader>
-            <div className="flex flex-col gap-y-4 text-center items-center flex-grow justify-center">
-              <div className="flex justify-center w-full">
-                <div
-                  className={cn(
-                    "orb",
-                    isDemoMode
-                      ? "orb-inactive"
-                      : conversation.status === "connected" &&
-                        conversation.isSpeaking
-                      ? "orb-active animate-orb"
-                      : conversation.status === "connected"
-                      ? "animate-orb-slow orb-inactive"
-                      : "orb-inactive"
-                  )}
-                ></div>
-              </div>
+    <div className="w-full h-screen flex flex-col bg-white">
+      {/* Global Header - Always present but title opacity changes */}
+      <header className="sticky top-0 z-50 bg-white">
+        <nav className="w-full grid grid-cols-2 px-14 py-5">
+          <div className="flex">
+            <Link href="/" prefetch={true}>
+              <ElevenLabsLogo className="h-[15px] w-auto hover:text-gray-500" />
+            </Link>
+          </div>
 
-              {error && (
-                <div
-                  className={cn(
-                    "text-sm p-3 rounded-md border max-w-md mx-auto text-left",
-                    isDemoMode
-                      ? "text-orange-600 bg-orange-50 border-orange-200"
-                      : "text-red-500 bg-red-50 border-red-200"
-                  )}
-                >
-                  <div className="font-medium mb-2">
-                    {isDemoMode ? "Demo Mode:" : "Configuration Error:"}
-                  </div>
-                  <div className="mb-3">{error}</div>
+          <div className="flex gap-4 justify-end">
+            <Link
+              href="https://github.com/jonatanvm/convai-demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-0.5"
+              aria-label="View source on GitHub"
+            >
+              <GithubLogo className="w-5 h-5 hover:text-gray-500 text-[#24292f]" />
+            </Link>
+          </div>
+        </nav>
 
-                  {(isConfigError || isDemoMode) && (
-                    <div className="text-xs text-gray-600 space-y-2">
-                      <div>To enable full functionality:</div>
-                      <div className="space-y-1">
-                        <div>1. Get your API key from ElevenLabs</div>
-                        <div>
-                          2. Create a conversational AI agent and copy the Agent
-                          ID
-                        </div>
-                        <div>
-                          3. Set environment variables in your deployment
-                        </div>
-                      </div>
-                    </div>
-                  )}
+      </header>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-start overflow-auto">
+        <AnimatePresence mode="wait">
+          {/* Initial State */}
+          {viewState === 'initial' && (
+            <motion.div
+              key="initial"
+              initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-2xl mx-auto px-8"
+            >
+              <div className="flex flex-col items-center text-center space-y-8">
+
+                {/* Title */}
+                <h1 className="text-5xl font-light tracking-tight">Eleven Shopping</h1>
+
+                {/* Orb */}
+                <div className="py-12">
+                  <Orb size="large" />
                 </div>
-              )}
 
-              <div className="flex flex-col gap-4 w-full px-4">
-                <Button
-                  variant="outline"
-                  className="rounded-full bg-transparent w-full"
-                  size="lg"
-                  disabled={
-                    isLoading ||
-                    (conversation !== null &&
-                      conversation.status === "connected")
-                  }
+                {/* Description */}
+                <p className="text-gray-600 max-w-md text-md">
+                  Your personal AI shopping assistant for Shopify. Just describe the product
+                  you want, by name, style, or details, and I'll find it for you.
+                </p>
+
+                {/* Button */}
+                <ConversationButton
                   onClick={startConversation}
+                  disabled={conversation.status === "connected"}
+                  isLoading={isLoading}
+                  loadingText="Starting..."
                 >
-                  {isLoading
-                    ? "Starting..."
-                    : isDemoMode
-                    ? "Try Demo"
-                    : "Start Shopping"}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="rounded-full bg-transparent w-full"
-                  size="lg"
-                  disabled={isLoading || (conversation === null && !isDemoMode)}
-                  onClick={stopConversation}
-                >
-                  {isLoading ? "Stopping..." : "End Session"}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  Start shopping
+                </ConversationButton>
 
-      {/* Interactive Product View - Right Side */}
-      <div className="flex-1">
-        <Card className="h-full">
-          <CardHeader>
-            <CardTitle>Interactive Product View</CardTitle>
-          </CardHeader>
-          <CardContent className="h-full overflow-hidden">
-            {mcpToolResult && (
-              <div className="hide-scrollbar flex gap-4 overflow-x-auto scroll-smooth h-full">
-                {mcpToolResult.map((uiResource: any, index: number) => {
-                  const height = 360;
-                  const width = 230;
-
-                  return (
-                    <div
-                      key={index}
-                      className="flex-shrink-0 transform-gpu transition-all duration-300 ease-out animate-in fade-in-0 slide-in-from-bottom-5"
-                      style={{
-                        width: `${width}px`,
-                        minHeight: `${height}px`,
-                        animationDelay: `${index * 100}ms`,
-                      }}
-                    >
-                      <div className="flex h-full flex-col">
-                        <UIResourceRenderer
-                          resource={{
-                            uri: uiResource.uri,
-                            mimeType: uiResource.mimeType,
-                            text: uiResource.text,
-                          }}
-                          onUIAction={async (result) => {
-                            console.log("Action:", result);
-                            if (result.type === "prompt") {
-                              conversation.sendUserMessage(
-                                result.payload.prompt
-                              );
-                            }
-                          }}
-                          htmlProps={{
-                            autoResizeIframe: { width: true, height: true },
-                          }}
-                        />
-                      </div>
+                {/* Error Message */}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    className={cn(
+                      "text-sm p-4 rounded-lg max-w-md",
+                      isDemoMode
+                        ? "text-orange-600 bg-orange-50 border border-orange-200"
+                        : "text-red-500 bg-red-50 border border-red-200"
+                    )}
+                  >
+                    <div className="font-medium mb-2">
+                      {isDemoMode ? "Demo Mode" : "Configuration Error"}
                     </div>
-                  );
-                })}
+                    <div className="mb-3">{error}</div>
+                    {(isConfigError || isDemoMode) && (
+                      <div className="text-xs text-gray-600 space-y-2">
+                        <div>To enable full functionality:</div>
+                        <ol className="list-decimal list-inside space-y-1">
+                          <li>Get your API key from ElevenLabs</li>
+                          <li>Create a conversational AI agent and copy the Agent ID</li>
+                          <li>Set environment variables in your deployment</li>
+                        </ol>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </motion.div>
+          )}
+
+          {/* Listening State */}
+          {viewState === 'listening' && !mcpToolResult && (
+            <motion.div
+              key="listening"
+              initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-2xl mx-auto px-8"
+            >
+              <div className="flex flex-col items-center text-center space-y-8">
+                {/* Animated Orb */}
+                <div className="py-12">
+                  <Orb
+                    size="large"
+                    isAnimated={true}
+                    isSpeaking={conversation.isSpeaking}
+                    volumeLevel={volumeLevel}
+                  />
+                </div>
+
+                {/* Status Text */}
+                <motion.p
+                  initial={{ opacity: 0, filter: "blur(8px)" }}
+                  animate={{ opacity: 1, filter: "blur(0px)" }}
+                  className="text-gray-400 text-4xl font-light tracking-tight pb-4"
+                >
+                  {conversation.isSpeaking ? "Speaking..." : "Listening..."}
+                </motion.p>
+
+                {/* End Call Button */}
+                <ConversationButton
+                  onClick={stopConversation}
+                  isLoading={isLoading}
+                  loadingText="Ending..."
+                >
+                  End call
+                </ConversationButton>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Results State */}
+          {viewState === 'results' && mcpToolResult && (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0, filter: "blur(10px)" }}
+              animate={{ opacity: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, filter: "blur(10px)" }}
+              transition={{ duration: 0.3 }}
+              className="w-full mb-[5vh]"
+            >
+              <div className="w-full">
+                {/* Compact header row with avatar, status, and end call button */}
+                <div className="flex items-center justify-between mb-9 px-14">
+                  <div className="flex items-center gap-4">
+                    {/* Small conversation orb */}
+                    <Orb
+                      size="small"
+                      isAnimated={true}
+                      isSpeaking={conversation.isSpeaking}
+                      volumeLevel={volumeLevel}
+                    />
+                    <span className="text-gray-500 text-2xl font-light tracking-tight">
+                      {conversation.isSpeaking ? "Speaking..." : "Listening..."}
+                    </span>
+                  </div>
+
+                  <ConversationButton
+                    onClick={stopConversation}
+                    isLoading={isLoading}
+                    loadingText="Ending..."
+                  >
+                    End call
+                  </ConversationButton>
+                </div>
+
+                <div>
+                  {/* Product Cards */}
+                  <div className="flex gap-6 overflow-x-auto hide-scrollbar scroll-smooth pb-4 px-14">
+                    {mcpToolResult.map((uiResource: any, index: number) => {
+                      // If there's only 1 card, show it wider (likely a detail view)
+                      const isSingleCard = mcpToolResult.length === 1;
+
+                      const width = isSingleCard ? "100%" : 280;
+                      const height = isSingleCard ? "75vh" : 400;
+
+                      return (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+                          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                          transition={{
+                            duration: 0.5,
+                            delay: index * 0.1,
+                            ease: "easeOut"
+                          }}
+                          className="flex-shrink-0 transition-transform hover:scale-105"
+                          style={{
+                            width: typeof width === 'number' ? `${width}px` : width,
+                            height: typeof height === 'number' ? `${height}px` : height,
+                          }}
+                        >
+                          <div
+                            ref={(el) => { productRefs.current[index] = el; }}
+                            className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full"
+                          >
+                            <UIResourceRenderer
+                              resource={{
+                                uri: uiResource.uri,
+                                mimeType: uiResource.mimeType,
+                                text: uiResource.text,
+                              }}
+                              onUIAction={async (result) => {
+                                console.log("UI Action received:", result);
+
+                                // Check if this is a detail/navigation action
+                                if (result.type === "navigate" ||
+                                    result.type === "detail" ||
+                                    (result.type === "resource" && result.payload?.resource)) {
+                                  // Navigate to full-page detail view
+                                  const resource = result.payload?.resource || result.payload;
+                                  if (resource && (resource.uri || resource.text)) {
+                                    const resourceParam = encodeURIComponent(JSON.stringify(resource));
+                                    router.push(`/product/${Date.now()}?resource=${resourceParam}`);
+                                    return;
+                                  }
+                                }
+
+                                // Handle other action types
+                                switch (result.type) {
+                                  case "prompt":
+                                    conversation.sendUserMessage(result.payload.prompt);
+                                    break;
+
+                                  case "tool":
+                                    if (result.payload.toolName === "redirect_to_checkout") {
+                                      const url = result.payload.params?.url;
+                                      if (url) {
+                                        window.open(url, "_blank", "noopener,noreferrer");
+                                      }
+                                    } else if (result.payload.toolName === "add_to_cart") {
+                                      const prompt = result.payload.params?.prompt || "Add this item to my cart";
+                                      conversation.sendUserMessage(prompt);
+                                    }
+                                    break;
+
+                                  case "link":
+                                    // Check if this is a product detail link
+                                    if (result.payload.url && result.payload.url.includes('/products/')) {
+                                      // This might be a detail page - check if we have a resource
+                                      if (result.payload.resource) {
+                                        const resourceParam = encodeURIComponent(JSON.stringify(result.payload.resource));
+                                        router.push(`/product/${Date.now()}?resource=${resourceParam}`);
+                                      } else {
+                                        // Open external product page
+                                        window.open(result.payload.url, "_blank", "noopener,noreferrer");
+                                      }
+                                    } else if (result.payload.url) {
+                                      window.open(result.payload.url, "_blank", "noopener,noreferrer");
+                                    }
+                                    break;
+
+                                  case "intent":
+                                    if (result.payload.intent === "view_details" || result.payload.intent === "detail") {
+                                      // Check if there's a detail resource in the payload
+                                      if (result.payload.resource) {
+                                        const resourceParam = encodeURIComponent(JSON.stringify(result.payload.resource));
+                                        router.push(`/product/${Date.now()}?resource=${resourceParam}`);
+                                      } else {
+                                        // Fall back to prompting for details
+                                        const intentPrompt = result.payload.prompt || `Show me details for this product`;
+                                        conversation.sendUserMessage(intentPrompt);
+                                      }
+                                    } else {
+                                      const intentPrompt = result.payload.prompt || `Handle intent: ${result.payload.intent}`;
+                                      conversation.sendUserMessage(intentPrompt);
+                                    }
+                                    break;
+
+                                  default:
+                                    console.log("Unhandled UI action type:", result.type, result);
+                                }
+                              }}
+                              htmlProps={{
+                                autoResizeIframe: { width: false, height: true },
+                              }}
+                              iframeProps={{
+                                style: { width: '100%', height: '100%' }
+                              }}
+                            />
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
     </div>
   );
 }
