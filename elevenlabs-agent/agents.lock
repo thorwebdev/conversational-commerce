@@ -1,0 +1,12 @@
+{
+    "agents": {
+        "Shopify buddy": {
+            "prod": {
+                "id": "agent_6801k3pj2da7en3rc0mk2gnsws9x",
+                "hash": "f1a7d50151cd9fdfd4e11d68a7ea45a6"
+            }
+        }
+    },
+    "tools": {},
+    "tests": {}
+}

@@ -1,0 +1,200 @@
+{
+    "name": "Shopify buddy",
+    "conversation_config": {
+        "asr": {
+            "quality": "high",
+            "provider": "elevenlabs",
+            "user_input_audio_format": "pcm_16000",
+            "keywords": []
+        },
+        "turn": {
+            "turn_timeout": 7,
+            "silence_end_call_timeout": 20,
+            "mode": "turn"
+        },
+        "tts": {
+            "model_id": "eleven_turbo_v2",
+            "voice_id": "cjVigY5qzO86Huf0OWal",
+            "supported_voices": [],
+            "agent_output_audio_format": "pcm_16000",
+            "optimize_streaming_latency": 3,
+            "stability": 0.5,
+            "speed": 1,
+            "similarity_boost": 0.8,
+            "pronunciation_dictionary_locators": []
+        },
+        "conversation": {
+            "text_only": false,
+            "max_duration_seconds": 300,
+            "client_events": [
+                "audio",
+                "interruption",
+                "user_transcript",
+                "agent_response",
+                "agent_response_correction"
+            ]
+        },
+        "language_presets": {},
+        "vad": {
+            "background_voice_detection": false
+        },
+        "agent": {
+            "first_message": "Hey, I'm your shopping buddy, what are you looking for?",
+            "language": "en",
+            "dynamic_variables": {
+                "dynamic_variable_placeholders": {}
+            },
+            "disable_first_message_interruptions": false,
+            "prompt": {
+                "prompt": "# Personality\n\nYou are **Maya**, an enthusiastic and knowledgeable personal shopping\nassistant with years of experience in retail and fashion. You're\nnaturally curious about people's style preferences, lifestyle needs, and\nbudget considerations. You have an eye for quality, value, and trends,\nand you genuinely enjoy helping people discover products that will make\nthem happy. You're patient, attentive to details, and remember what\ncustomers tell you about their preferences throughout the conversation.\nYou approach shopping as a collaborative experience, treating each\ncustomer as a unique individual with their own taste and needs.\n\n# Environment\n\nYou are engaged in a **live, spoken conversation** through a shopping\nwebsite or mobile app. Customers have initiated a voice chat to get\npersonalized shopping assistance while browsing products. They might be\nat home relaxing, commuting, or multitasking, so they appreciate\nhands-free help.\n\nSome customers may be comparison shopping, others might be impulse\nbuying, and some could be researching for future purchases. Since the\ncustomer cannot see your screen, you need to **describe products\nclearly** and guide them through their options verbally.\n\n# Tone\n\n-   Warm, conversational, and encouraging.\\\n-   Explanations concise but informative (under 3 sentences unless\n    comparing).\\\n-   Friendly and approachable tone with natural speech patterns:\n    -   Affirmations: *\"Perfect!\", \"I love that choice\", \"Great\n        question\"*\\\n    -   Pauses: *\"Let me see what we have...\", \"Hmm, for that\n        budget...\"*\\\n-   Adapt language to customer's familiarity with products.\\\n-   Check for understanding: *\"Does that sound like what you're looking\n    for?\"*\\\n-   Acknowledge frustrations with empathy: *\"I totally understand\n    wanting the perfect fit.\"*\\\n-   Prices spoken clearly: *\"twenty-nine dollars and ninety-nine\n    cents.\"*\\\n-   Keep language simple and conversational, not retail jargon.\n\n# Goal\n\nYour objective is to help customers **discover and purchase products**\nthat genuinely meet their needs, preferences, and budget.\n\n### Approach\n\n1.  **Discovery and Understanding**\n    -   Ask targeted questions about needs, style, size, budget.\\\n    -   Listen for lifestyle clues.\\\n    -   Identify must-have features.\\\n    -   Confirm understanding before suggesting.\n2.  **Product Exploration and Recommendation**\n    -   Use `search_shop_catalog` to find relevant products.\\\n    -   Present 2--3 carefully chosen options.\\\n    -   Use `get_product_details` for specifics.\\\n    -   Highlight how each product meets their needs.\\\n    -   Compare options focusing on key differences.\n3.  **Decision Support and Refinement**\n    -   Help evaluate trade-offs in price, quality, features.\\\n    -   Suggest complementary items when appropriate.\\\n    -   Address hesitations with details or alternatives.\\\n    -   Use `get_cart` and `update_cart` to manage selections.\n4.  **Purchase Facilitation**\n    -   Guide through adding items to cart.\\\n    -   Confirm size, quantity, specifications.\\\n    -   Provide info on shipping, returns, policies.\\\n    -   Offer checkout help and answer final questions.\n\n### Conditional Handling\n\n-   **Price-sensitive shoppers:** Highlight value, sales, and\n    discounts.\\\n-   **Expert shoppers:** Provide detailed technical specs.\\\n-   **Overwhelmed shoppers:** Simplify choices and focus on top\n    priorities.\n\nSuccess = customer satisfaction, accurate product matches, and efficient\ndecision-making.\n\n# Guardrails\n\n-   Recommend only items in the current catalog.\\\n-   Verify specs with tools, don't assume.\\\n-   Be honest about limitations and drawbacks.\\\n-   Respect budget limits---never pressure.\\\n-   Mirror customer's communication style (brief, detailed, patient).\\\n-   Prioritize customer's needs over higher-priced alternatives unless\n    they request premium.\n\n# Tools\n\n-   **`search_shop_catalog`**: Find products by category, price, brand,\n    or features.\\\n-   **`get_product_details`**: Retrieve specs, reviews, sizes,\n    availability.\\\n-   **`get_cart`**: Check current cart items.\\\n-   **`update_cart`**: Add items with correct sizes, quantities, and\n    details. Use this tool to add items to the cart. If you don't have a cart ID yet, call the tool without a cart id. \n\n### Workflow:\n1. Understand needs → 2. Search catalog → 3. Provide curated options →\n4. Give details → 5. Manage cart → 6. Finalize purchase.\n",
+                "llm": "gemini-2.0-flash-001",
+                "reasoning_effort": null,
+                "temperature": 0.5,
+                "max_tokens": -1,
+                "tool_ids": [
+                    "tool_1601k6b296gtft4bd9g7yp8s9g3s"
+                ],
+                "built_in_tools": {},
+                "mcp_server_ids": [
+                    "2Af4oTzQTNXyut2oqFst"
+                ],
+                "native_mcp_server_ids": [],
+                "knowledge_base": [],
+                "ignore_default_personality": false,
+                "rag": {
+                    "enabled": false,
+                    "embedding_model": "e5_mistral_7b_instruct",
+                    "max_vector_distance": 0.6,
+                    "max_documents_length": 50000,
+                    "max_retrieved_rag_chunks_count": 20
+                },
+                "tools": [
+                    {
+                        "type": "client",
+                        "name": "redirect_to_checkout",
+                        "description": "Use this tool to redirect to the checkout url upon receiving the mcp-ui-prompt.",
+                        "response_timeout_secs": 4,
+                        "disable_interruptions": false,
+                        "force_pre_tool_speech": false,
+                        "assignments": [],
+                        "parameters": {
+                            "type": "object",
+                            "required": [
+                                "url"
+                            ],
+                            "description": "",
+                            "properties": {
+                                "url": {
+                                    "type": "string",
+                                    "description": "The checkout url from the mcp-ui-prompt.",
+                                    "enum": null,
+                                    "dynamic_variable": "",
+                                    "constant_value": ""
+                                }
+                            }
+                        },
+                        "expects_response": true,
+                        "dynamic_variables": {
+                            "dynamic_variable_placeholders": {}
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "platform_settings": {
+        "auth": {
+            "enable_auth": false,
+            "allowlist": []
+        },
+        "evaluation": {
+            "criteria": []
+        },
+        "widget": {
+            "variant": "full",
+            "placement": "bottom-right",
+            "expandable": "never",
+            "avatar": {
+                "type": "orb",
+                "color1": "#2792dc",
+                "color2": "#9ce6e6"
+            },
+            "feedback_mode": "during",
+            "bg_color": "#ffffff",
+            "text_color": "#000000",
+            "btn_color": "#000000",
+            "btn_text_color": "#ffffff",
+            "border_color": "#e1e1e1",
+            "focus_color": "#000000",
+            "shareable_page_show_terms": true,
+            "terms_text": "#### Terms and conditions\n\nBy clicking \"Agree,\" and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.",
+            "terms_html": "<h4>Terms and conditions</h4>\n<p>By clicking &quot;Agree,&quot; and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as described in the Privacy Policy.\nIf you do not wish to have your conversations recorded, please refrain from using this service.</p>\n",
+            "show_avatar_when_collapsed": false,
+            "disable_banner": false,
+            "mic_muting_enabled": false,
+            "transcript_enabled": false,
+            "text_input_enabled": true,
+            "default_expanded": false,
+            "always_expanded": false,
+            "text_contents": {},
+            "styles": {},
+            "language_selector": false,
+            "supports_text_only": true,
+            "language_presets": {}
+        },
+        "data_collection": {},
+        "overrides": {
+            "conversation_config_override": {
+                "tts": {
+                    "voice_id": false,
+                    "stability": false,
+                    "speed": false,
+                    "similarity_boost": false
+                },
+                "conversation": {
+                    "text_only": true
+                },
+                "agent": {
+                    "first_message": false,
+                    "language": false,
+                    "prompt": {
+                        "prompt": false,
+                        "native_mcp_server_ids": false
+                    }
+                }
+            },
+            "custom_llm_extra_body": false,
+            "enable_conversation_initiation_client_data_from_webhook": false
+        },
+        "call_limits": {
+            "agent_concurrency_limit": -1,
+            "daily_limit": 100000,
+            "bursting_enabled": true
+        },
+        "ban": null,
+        "privacy": {
+            "record_voice": true,
+            "retention_days": -1,
+            "delete_transcript_and_pii": false,
+            "delete_audio": false,
+            "apply_to_existing_conversations": false,
+            "zero_retention_mode": false
+        },
+        "workspace_overrides": {
+            "webhooks": {
+                "send_audio": false
+            }
+        },
+        "testing": {
+            "attached_tests": [],
+            "referenced_tests_ids": []
+        },
+        "archived": false,
+        "safety": {
+            "is_blocked_ivc": false,
+            "is_blocked_non_ivc": false,
+            "ignore_safety_evaluation": false
+        }
+    },
+    "tags": []
+}

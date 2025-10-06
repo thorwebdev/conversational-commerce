@@ -1,0 +1,8 @@
+{
+    "agents": [
+        {
+            "name": "Shopify buddy",
+            "config": "agent_configs/shopify_buddy.json"
+        }
+    ]
+}
