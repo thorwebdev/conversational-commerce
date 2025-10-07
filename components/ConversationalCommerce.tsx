@@ -35,13 +35,13 @@ async function checkEnvironment() {
   }
 }
 
-async function getSignedUrl(): Promise<{
-  signedUrl: string;
+async function getConversationToken(): Promise<{
+  conversationToken: string;
   isDemo?: boolean;
 }> {
   try {
-    console.log("Fetching signed URL...");
-    const response = await fetch("/api/signed-url");
+    console.log("Fetching conversation token...");
+    const response = await fetch("/api/webrtc-token");
 
     if (!response.ok) {
       let errorData;
@@ -60,13 +60,15 @@ async function getSignedUrl(): Promise<{
     }
 
     const data = await response.json();
-    if (!data.signedUrl) {
-      throw new Error("No signed URL in response");
+    if (!data.conversationToken && !data.signedUrl) {
+      throw new Error("No conversation token in response");
     }
 
-    return { signedUrl: data.signedUrl, isDemo: data.isDemo };
+    // Use conversationToken if available, fallback to signedUrl for backward compatibility
+    const token = data.conversationToken || data.signedUrl;
+    return { conversationToken: token, isDemo: data.isDemo };
   } catch (error) {
-    console.error("Error in getSignedUrl:", error);
+    console.error("Error in getConversationToken:", error);
     throw error;
   }
 }
@@ -89,7 +91,7 @@ export function ConversationalCommerce() {
   }, []);
 
   const conversation = useConversation({
-    mode: "webrtc",
+    connectionType: "webrtc",
     clientTools: {
       redirect_to_checkout: async ({ url }: { url: string }) => {
         console.log("Redirecting to checkout:", url);
@@ -213,7 +215,7 @@ export function ConversationalCommerce() {
         return;
       }
 
-      const { signedUrl, isDemo } = await getSignedUrl();
+      const { conversationToken, isDemo } = await getConversationToken();
 
       if (isDemo) {
         setIsDemoMode(true);
@@ -224,7 +226,7 @@ export function ConversationalCommerce() {
         return;
       }
 
-      await conversation.startSession({ signedUrl });
+      await conversation.startSession({ conversationToken });
       setIsLoading(false);
     } catch (error) {
       console.error("Error starting conversation:", error);
