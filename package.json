@@ -9,6 +9,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@elevenlabs/client": "^0.7.1",
+    "@elevenlabs/elevenlabs-js": "^2.17.0",
     "@elevenlabs/react": "^0.7.1",
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
