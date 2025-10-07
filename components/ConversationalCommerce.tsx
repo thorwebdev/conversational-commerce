@@ -71,8 +71,7 @@ async function getSignedUrl(): Promise<{
   }
 }
 
-type ViewState = 'initial' | 'listening' | 'results';
-
+type ViewState = "initial" | "listening" | "results";
 
 export function ConversationalCommerce() {
   const router = useRouter();
@@ -81,7 +80,7 @@ export function ConversationalCommerce() {
   const [envStatus, setEnvStatus] = useState<any>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [mcpToolResult, setMcpToolResult] = useState<any>(null);
-  const [viewState, setViewState] = useState<ViewState>('initial');
+  const [viewState, setViewState] = useState<ViewState>("initial");
   const productRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [volumeLevel, setVolumeLevel] = useState(0);
 
@@ -104,7 +103,13 @@ export function ConversationalCommerce() {
         // For now, we'll just log it and let the AI handle the conversation
         return "Cart opened successfully";
       },
-      add_to_cart: async ({ productId, quantity = 1 }: { productId: string; quantity?: number }) => {
+      add_to_cart: async ({
+        productId,
+        quantity = 1,
+      }: {
+        productId: string;
+        quantity?: number;
+      }) => {
         console.log(`Adding to cart: ${productId} x${quantity}`);
         // This would typically add the item to the cart
         // For now, we'll just log it and let the AI handle the conversation
@@ -114,12 +119,12 @@ export function ConversationalCommerce() {
     onConnect: () => {
       console.log("Connected to conversation");
       setError(null);
-      setViewState('listening');
+      setViewState("listening");
     },
     onDisconnect: () => {
       console.log("Disconnected from conversation");
       setIsLoading(false);
-      setViewState('initial');
+      setViewState("initial");
       setMcpToolResult(null);
     },
     onError: (error) => {
@@ -151,7 +156,7 @@ export function ConversationalCommerce() {
         console.log("UI Resources:", uiResources);
         setMcpToolResult(uiResources);
         if (uiResources && uiResources.length > 0) {
-          setViewState('results');
+          setViewState("results");
         }
       }
     },
@@ -238,7 +243,7 @@ export function ConversationalCommerce() {
       await conversation.endSession();
       setError(null);
       setIsDemoMode(false);
-      setViewState('initial');
+      setViewState("initial");
       setMcpToolResult(null);
     } catch (error) {
       console.error("Error stopping conversation:", error);
@@ -266,7 +271,7 @@ export function ConversationalCommerce() {
 
           <div className="flex gap-4 justify-end">
             <Link
-              href="https://github.com/jonatanvm/convai-demo"
+              href="https://github.com/thorwebdev/conversational-commerce"
               target="_blank"
               rel="noopener noreferrer"
               className="py-0.5"
@@ -276,14 +281,13 @@ export function ConversationalCommerce() {
             </Link>
           </div>
         </nav>
-
       </header>
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-start overflow-auto">
         <AnimatePresence mode="wait">
           {/* Initial State */}
-          {viewState === 'initial' && (
+          {viewState === "initial" && (
             <motion.div
               key="initial"
               initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
@@ -293,9 +297,10 @@ export function ConversationalCommerce() {
               className="w-full max-w-2xl mx-auto px-8"
             >
               <div className="flex flex-col items-center text-center space-y-8">
-
                 {/* Title */}
-                <h1 className="text-5xl font-light tracking-tight">Eleven Shopping</h1>
+                <h1 className="text-5xl font-light tracking-tight">
+                  Eleven Shopping
+                </h1>
 
                 {/* Orb */}
                 <div className="py-12">
@@ -304,8 +309,9 @@ export function ConversationalCommerce() {
 
                 {/* Description */}
                 <p className="text-gray-600 max-w-md text-md">
-                  Your personal AI shopping assistant for Shopify. Just describe the product
-                  you want, by name, style, or details, and I'll find it for you.
+                  Your personal AI shopping assistant for any Shopify store.
+                  Just describe the product you want, by name, style, or
+                  details, and I'll find it for you.
                 </p>
 
                 {/* Button */}
@@ -339,7 +345,10 @@ export function ConversationalCommerce() {
                         <div>To enable full functionality:</div>
                         <ol className="list-decimal list-inside space-y-1">
                           <li>Get your API key from ElevenLabs</li>
-                          <li>Create a conversational AI agent and copy the Agent ID</li>
+                          <li>
+                            Create a conversational AI agent and copy the Agent
+                            ID
+                          </li>
                           <li>Set environment variables in your deployment</li>
                         </ol>
                       </div>
@@ -351,7 +360,7 @@ export function ConversationalCommerce() {
           )}
 
           {/* Listening State */}
-          {viewState === 'listening' && !mcpToolResult && (
+          {viewState === "listening" && !mcpToolResult && (
             <motion.div
               key="listening"
               initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
@@ -393,7 +402,7 @@ export function ConversationalCommerce() {
           )}
 
           {/* Results State */}
-          {viewState === 'results' && mcpToolResult && (
+          {viewState === "results" && mcpToolResult && (
             <motion.div
               key="results"
               initial={{ opacity: 0, filter: "blur(10px)" }}
@@ -445,16 +454,22 @@ export function ConversationalCommerce() {
                           transition={{
                             duration: 0.5,
                             delay: index * 0.1,
-                            ease: "easeOut"
+                            ease: "easeOut",
                           }}
                           className="flex-shrink-0 transition-transform hover:scale-105"
                           style={{
-                            width: typeof width === 'number' ? `${width}px` : width,
-                            height: typeof height === 'number' ? `${height}px` : height,
+                            width:
+                              typeof width === "number" ? `${width}px` : width,
+                            height:
+                              typeof height === "number"
+                                ? `${height}px`
+                                : height,
                           }}
                         >
                           <div
-                            ref={(el) => { productRefs.current[index] = el; }}
+                            ref={(el) => {
+                              productRefs.current[index] = el;
+                            }}
                             className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full"
                           >
                             <UIResourceRenderer
@@ -467,14 +482,25 @@ export function ConversationalCommerce() {
                                 console.log("UI Action received:", result);
 
                                 // Check if this is a detail/navigation action
-                                if (result.type === "navigate" ||
-                                    result.type === "detail" ||
-                                    (result.type === "resource" && result.payload?.resource)) {
+                                if (
+                                  result.type === "navigate" ||
+                                  result.type === "detail" ||
+                                  (result.type === "resource" &&
+                                    result.payload?.resource)
+                                ) {
                                   // Navigate to full-page detail view
-                                  const resource = result.payload?.resource || result.payload;
-                                  if (resource && (resource.uri || resource.text)) {
-                                    const resourceParam = encodeURIComponent(JSON.stringify(resource));
-                                    router.push(`/product/${Date.now()}?resource=${resourceParam}`);
+                                  const resource =
+                                    result.payload?.resource || result.payload;
+                                  if (
+                                    resource &&
+                                    (resource.uri || resource.text)
+                                  ) {
+                                    const resourceParam = encodeURIComponent(
+                                      JSON.stringify(resource)
+                                    );
+                                    router.push(
+                                      `/product/${Date.now()}?resource=${resourceParam}`
+                                    );
                                     return;
                                   }
                                 }
@@ -482,63 +508,120 @@ export function ConversationalCommerce() {
                                 // Handle other action types
                                 switch (result.type) {
                                   case "prompt":
-                                    conversation.sendUserMessage(result.payload.prompt);
+                                    conversation.sendUserMessage(
+                                      result.payload.prompt
+                                    );
                                     break;
 
                                   case "tool":
-                                    if (result.payload.toolName === "redirect_to_checkout") {
+                                    if (
+                                      result.payload.toolName ===
+                                      "redirect_to_checkout"
+                                    ) {
                                       const url = result.payload.params?.url;
                                       if (url) {
-                                        window.open(url, "_blank", "noopener,noreferrer");
+                                        window.open(
+                                          url,
+                                          "_blank",
+                                          "noopener,noreferrer"
+                                        );
                                       }
-                                    } else if (result.payload.toolName === "add_to_cart") {
-                                      const prompt = result.payload.params?.prompt || "Add this item to my cart";
+                                    } else if (
+                                      result.payload.toolName === "add_to_cart"
+                                    ) {
+                                      const prompt =
+                                        result.payload.params?.prompt ||
+                                        "Add this item to my cart";
                                       conversation.sendUserMessage(prompt);
                                     }
                                     break;
 
                                   case "link":
                                     // Check if this is a product detail link
-                                    if (result.payload.url && result.payload.url.includes('/products/')) {
+                                    if (
+                                      result.payload.url &&
+                                      result.payload.url.includes("/products/")
+                                    ) {
                                       // This might be a detail page - check if we have a resource
                                       if (result.payload.resource) {
-                                        const resourceParam = encodeURIComponent(JSON.stringify(result.payload.resource));
-                                        router.push(`/product/${Date.now()}?resource=${resourceParam}`);
+                                        const resourceParam =
+                                          encodeURIComponent(
+                                            JSON.stringify(
+                                              result.payload.resource
+                                            )
+                                          );
+                                        router.push(
+                                          `/product/${Date.now()}?resource=${resourceParam}`
+                                        );
                                       } else {
                                         // Open external product page
-                                        window.open(result.payload.url, "_blank", "noopener,noreferrer");
+                                        window.open(
+                                          result.payload.url,
+                                          "_blank",
+                                          "noopener,noreferrer"
+                                        );
                                       }
                                     } else if (result.payload.url) {
-                                      window.open(result.payload.url, "_blank", "noopener,noreferrer");
+                                      window.open(
+                                        result.payload.url,
+                                        "_blank",
+                                        "noopener,noreferrer"
+                                      );
                                     }
                                     break;
 
                                   case "intent":
-                                    if (result.payload.intent === "view_details" || result.payload.intent === "detail") {
+                                    if (
+                                      result.payload.intent ===
+                                        "view_details" ||
+                                      result.payload.intent === "detail"
+                                    ) {
                                       // Check if there's a detail resource in the payload
                                       if (result.payload.resource) {
-                                        const resourceParam = encodeURIComponent(JSON.stringify(result.payload.resource));
-                                        router.push(`/product/${Date.now()}?resource=${resourceParam}`);
+                                        const resourceParam =
+                                          encodeURIComponent(
+                                            JSON.stringify(
+                                              result.payload.resource
+                                            )
+                                          );
+                                        router.push(
+                                          `/product/${Date.now()}?resource=${resourceParam}`
+                                        );
                                       } else {
                                         // Fall back to prompting for details
-                                        const intentPrompt = result.payload.prompt || `Show me details for this product`;
-                                        conversation.sendUserMessage(intentPrompt);
+                                        const intentPrompt =
+                                          result.payload.prompt ||
+                                          `Show me details for this product`;
+                                        conversation.sendUserMessage(
+                                          intentPrompt
+                                        );
                                       }
                                     } else {
-                                      const intentPrompt = result.payload.prompt || `Handle intent: ${result.payload.intent}`;
-                                      conversation.sendUserMessage(intentPrompt);
+                                      const intentPrompt =
+                                        result.payload.prompt ||
+                                        `Handle intent: ${result.payload.intent}`;
+                                      conversation.sendUserMessage(
+                                        intentPrompt
+                                      );
                                     }
                                     break;
 
                                   default:
-                                    console.log("Unhandled UI action type:", result.type, result);
+                                    console.log(
+                                      "Unhandled UI action type:",
+                                      result.type,
+                                      result
+                                    );
                                 }
                               }}
                               htmlProps={{
-                                autoResizeIframe: { width: false, height: true },
+                                autoResizeIframe: {
+                                  width: false,
+                                  height: true,
+                                },
                               }}
                               iframeProps={{
-                                style: { width: '100%', height: '100%' }
+                                style: { width: "100%", height: "100%" },
                               }}
                             />
                           </div>
@@ -552,7 +635,6 @@ export function ConversationalCommerce() {
           )}
         </AnimatePresence>
       </div>
-
     </div>
   );
 }
