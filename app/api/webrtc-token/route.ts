@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
+export const revalidate = 0;
+
 export async function GET() {
   try {
     // Use the AGENT_ID from environment, or fall back to a placeholder for demo
