@@ -138,27 +138,25 @@ export function ConversationalCommerce() {
       }
       setIsLoading(false);
     },
+    onMCPToolCall: (toolCall) => {
+      console.log("MCP tool call:", { toolCall });
+      const uiResources = toolCall.result?.reduce((acc: any, result: any) => {
+        if (result.type === "resource") {
+          return [...acc, result.resource];
+        }
+        return acc;
+      }, []);
+      console.log("UI Resources:", uiResources);
+      setMcpToolResult(uiResources);
+      if (uiResources && uiResources.length > 0) {
+        setViewState("results");
+      }
+    },
     onDebug: (debugInfo) => {
       console.log(
         "[v0] ElevenLabs onDebug callback triggered:",
         JSON.stringify(debugInfo, null, 2)
       );
-      if (debugInfo.mcp_tool_call) {
-        const uiResources = debugInfo.mcp_tool_call.result?.reduce(
-          (acc: any, result: any) => {
-            if (result.type === "resource") {
-              return [...acc, result.resource];
-            }
-            return acc;
-          },
-          []
-        );
-        console.log("UI Resources:", uiResources);
-        setMcpToolResult(uiResources);
-        if (uiResources && uiResources.length > 0) {
-          setViewState("results");
-        }
-      }
     },
     onMessage: (message) => {
       console.log("Message received:", message);

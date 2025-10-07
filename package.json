@@ -9,7 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@elevenlabs/react": "latest",
+    "@elevenlabs/react": "^0.7.1",
     "@emotion/is-prop-valid": "latest",
     "@hookform/resolvers": "^3.9.1",
     "@mcp-ui/client": "latest",

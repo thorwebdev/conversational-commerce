@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@elevenlabs/react':
-        specifier: latest
-        version: 0.6.2(@types/dom-mediacapture-record@1.0.22)(react@18.3.1)
+        specifier: ^0.7.1
+        version: 0.7.1(@types/dom-mediacapture-record@1.0.22)(react@18.3.1)
       '@emotion/is-prop-valid':
         specifier: latest
         version: 1.4.0
@@ -209,13 +209,16 @@ packages:
   '@date-fns/tz@1.2.0':
     resolution: {integrity: sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==}
 
-  '@elevenlabs/client@0.6.2':
-    resolution: {integrity: sha512-4b3GCZLBINujAQ7PXMfLR4JrffiUc17plak4sXM0KMxxsDtFSrVAUCQHxFiEzDkSpTrMN+JtJbx7zhjIfkpWjA==}
+  '@elevenlabs/client@0.7.1':
+    resolution: {integrity: sha512-cYOEPjAi6+nooHx/+odoBbnEYyDNsZNzJeApT+D82tI2b0I9W5mrTqMZb12Tpvhn5cdzT6w8GVmLvs438vrOCw==}
 
-  '@elevenlabs/react@0.6.2':
-    resolution: {integrity: sha512-rkoCJqYQ8b+uCSU5IzGu2pZ/QYr82EX1S/o/7V+w7Dos8X66lhHGobPoSsnDR4aYiQ5vqKPUQVz0L7eyp026uw==}
+  '@elevenlabs/react@0.7.1':
+    resolution: {integrity: sha512-fY4PtTmZyrFsGfmcEeiCBzL0V/rplRjJOclUNf1JYHgxjXJrl2gEXPFDQ6F1uHoXPdJpN/aTdFhlkfCxiErl2A==}
     peerDependencies:
       react: '>=16.8.0'
+
+  '@elevenlabs/types@0.0.1':
+    resolution: {integrity: sha512-HyYCtp1nsNl+m5NsiQsZqhjik1L1N3L+IFDOcbcO4foSU8AtxgqZOxFAI33XmXco1Uhe0gSL+uWjt8Zu/CncIQ==}
 
   '@emotion/is-prop-valid@1.4.0':
     resolution: {integrity: sha512-QgD4fyscGcbbKwJmqNvUMSE02OsHUa+lAWKdEUIJKgqe5IwRSKd7+KhibEWdaKwgjLj0DRSHA9biAIqGBk05lw==}
@@ -2246,18 +2249,21 @@ snapshots:
 
   '@date-fns/tz@1.2.0': {}
 
-  '@elevenlabs/client@0.6.2(@types/dom-mediacapture-record@1.0.22)':
+  '@elevenlabs/client@0.7.1(@types/dom-mediacapture-record@1.0.22)':
     dependencies:
+      '@elevenlabs/types': 0.0.1
       livekit-client: 2.15.7(@types/dom-mediacapture-record@1.0.22)
     transitivePeerDependencies:
       - '@types/dom-mediacapture-record'
 
-  '@elevenlabs/react@0.6.2(@types/dom-mediacapture-record@1.0.22)(react@18.3.1)':
+  '@elevenlabs/react@0.7.1(@types/dom-mediacapture-record@1.0.22)(react@18.3.1)':
     dependencies:
-      '@elevenlabs/client': 0.6.2(@types/dom-mediacapture-record@1.0.22)
+      '@elevenlabs/client': 0.7.1(@types/dom-mediacapture-record@1.0.22)
       react: 18.3.1
     transitivePeerDependencies:
       - '@types/dom-mediacapture-record'
+
+  '@elevenlabs/types@0.0.1': {}
 
   '@emotion/is-prop-valid@1.4.0':
     dependencies:
