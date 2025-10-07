@@ -1,14 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { ConversationButton } from "@/components/ConversationButton";
 import { Orb } from "@/components/Orb";
 import { useCallback, useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useConversation } from "@elevenlabs/react";
 import { cn } from "@/lib/utils";
 import { UIResourceRenderer } from "@mcp-ui/client";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { ElevenLabsLogo, GithubLogo } from "@/components/logos";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
