@@ -10,6 +10,15 @@ import { ElevenLabsLogo, GithubLogo } from "@/components/logos";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 async function requestMicrophonePermission() {
   try {
@@ -82,9 +91,19 @@ export function ConversationalCommerce() {
   const [viewState, setViewState] = useState<ViewState>("initial");
   const productRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [volumeLevel, setVolumeLevel] = useState(0);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [hasAgreedToTerms, setHasAgreedToTerms] = useState(false);
 
   useEffect(() => {
     checkEnvironment().then(setEnvStatus);
+  }, []);
+
+  // Check if user has previously agreed to terms
+  useEffect(() => {
+    const agreedToTerms = localStorage.getItem("elevenLabsTermsAgreed");
+    if (agreedToTerms === "true") {
+      setHasAgreedToTerms(true);
+    }
   }, []);
 
   const conversation = useConversation({
@@ -201,6 +220,12 @@ export function ConversationalCommerce() {
   }, [conversation.status]);
 
   async function startConversation() {
+    // Check if user has agreed to terms first
+    if (!hasAgreedToTerms) {
+      setShowTermsModal(true);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
@@ -233,6 +258,18 @@ export function ConversationalCommerce() {
       setIsLoading(false);
     }
   }
+
+  const handleAgreeToTerms = () => {
+    setHasAgreedToTerms(true);
+    localStorage.setItem("elevenLabsTermsAgreed", "true");
+    setShowTermsModal(false);
+    // Now start the conversation
+    startConversation();
+  };
+
+  const handleCancelTerms = () => {
+    setShowTermsModal(false);
+  };
 
   const stopConversation = useCallback(async () => {
     try {
@@ -320,6 +357,28 @@ export function ConversationalCommerce() {
                 >
                   Start shopping
                 </ConversationButton>
+
+                {/* Powered by text */}
+                <p className="text-gray-400 text-sm">
+                  Powered by{" "}
+                  <Link
+                    href="https://elevenlabs.io/agents"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-600 transition-colors underline"
+                  >
+                    ElevenLabs Agents
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="https://mcpui.dev/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-600 transition-colors underline"
+                  >
+                    MCP-UI.
+                  </Link>
+                </p>
 
                 {/* Error Message */}
                 {error && (
@@ -632,6 +691,39 @@ export function ConversationalCommerce() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Terms Modal */}
+      <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>ElevenLabs Agents Terms</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600 space-y-2">
+              By clicking "Start shopping" and each time I interact with this AI
+              agent, I consent to the recording, storage, and sharing of my
+              communications with third-party service providers, and as
+              described in the{" "}
+              <Link
+                href="https://elevenlabs.io/terms-of-use"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-600 transition-colors underline"
+              >
+                Privacy Policy
+              </Link>
+              . If you do not wish to have your conversations recorded, please
+              refrain from using this service.
+            </p>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={handleCancelTerms}>
+              Cancel
+            </Button>
+            <Button onClick={handleAgreeToTerms}>Agree & Continue</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
