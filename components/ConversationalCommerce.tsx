@@ -321,6 +321,28 @@ export function ConversationalCommerce() {
                   Start shopping
                 </ConversationButton>
 
+                {/* Powered by text */}
+                <p className="text-gray-400 text-sm">
+                  Powered by{" "}
+                  <Link
+                    href="https://elevenlabs.io/agents"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-600 transition-colors underline"
+                  >
+                    ElevenLabs Agents
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="https://mcpui.dev/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-600 transition-colors underline"
+                  >
+                    MCP-UI.
+                  </Link>
+                </p>
+
                 {/* Error Message */}
                 {error && (
                   <motion.div
